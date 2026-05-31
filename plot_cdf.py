@@ -142,6 +142,23 @@ def parse_and_build(xml_path: str) -> tuple[np.ndarray, np.ndarray, str]:
     return x, y, label
 
 
+def detect_title(xml_files: list[str]) -> str:
+    """
+    Wykrywa tytuł wykresu na podstawie nazw plików wejściowych.
+    Rozpoznaje pliki wifi7-mlo-* i ampdu-*.
+    """
+    names = [Path(f).stem for f in xml_files]
+    has_wifi7 = any("wifi7" in n for n in names)
+    has_ampdu = any("ampdu" in n for n in names)
+
+    if has_wifi7 and has_ampdu:
+        return "CDF opóźnień strumienia VoIP (STA2 → AP)\nWi-Fi 6 (802.11ax) vs Wi-Fi 7 (802.11be / MLO)"
+    elif has_wifi7:
+        return "CDF opóźnień strumienia VoIP (STA2 → AP)\nWi-Fi 7 (802.11be, 5+6 GHz MLO STR)"
+    else:
+        return "CDF opóźnień strumienia VoIP (STA2 → AP)\nWi-Fi 6 (802.11ax, 5 GHz, 80 MHz)"
+
+
 # ─── Główna logika ─────────────────────────────────────────────────────────────
 
 def main():
@@ -176,8 +193,7 @@ def main():
     # ── Styl wykresu ──────────────────────────────────────────────────────────
     ax.set_xlabel("Opóźnienie end-to-end [ms]", fontsize=13)
     ax.set_ylabel("CDF – prawdopodobieństwo", fontsize=13)
-    ax.set_title("CDF opóźnień strumienia VoIP (STA2 → AP)\nWi-Fi 6 (802.11ax, 5 GHz, 80 MHz)",
-                 fontsize=13, pad=12)
+    ax.set_title(detect_title(xml_files), fontsize=13, pad=12)
 
     ax.set_ylim(0, 1.02)
     ax.set_xlim(left=0)
