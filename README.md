@@ -86,6 +86,32 @@ python3 scratch/ns3-wifi6-aggregation-delay/aggregate_scenario1.py
 
 Wynik: `results/scenario1/cdf_scenario1_ampdu_sweep.pdf` + tabela w konsoli.
 
+### Scenariusz 2 (sekcja 4.2) — skalowalność z obciążeniem
+
+Liczba stacji w tle `N ∈ {1,3,5,7,9,11,13,15}`, w dwóch konfiguracjach agregacji
+(ON = 6500631 B, OFF = 0 B), 10 powtórzeń. Metryki: p99 opóźnienia VoIP i średni
+jitter w funkcji N (ten sam program co Scenariusz 1).
+
+```bash
+# 2 × 8 × 10 = 160 biegów -> results/scenario2/flowmon-ampdu{on,off}-N<N>-run<R>.xml
+./scratch/ns3-wifi6-aggregation-delay/run_scenario2.sh
+
+# p99 + jitter vs N (krzywe ON/OFF z 95% CI)
+python3 scratch/ns3-wifi6-aggregation-delay/aggregate_scenario2.py
+```
+
+Wynik: `results/scenario2/scenario2_p99_vs_N.pdf` oraz `scenario2_jitter_vs_N.pdf`.
+
+### Scenariusz 3 (Wi-Fi 7 / MLO)
+
+```bash
+# MLO on/off × 10 powtórzeń = 20 biegów (uwaga: model widmowy jest wolny)
+./scratch/ns3-wifi6-aggregation-delay/run_scenario3.sh
+python3 scratch/ns3-wifi6-aggregation-delay/aggregate_scenario3.py
+```
+
+Wynik: `results/scenario3/cdf_scenario3_mlo.pdf`.
+
 ---
 
 ## Generowanie wykresów CDF
