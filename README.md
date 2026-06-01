@@ -11,17 +11,21 @@ Prowadzący: prof. dr hab. inż. Szymon Szott
 
 ```
 ns3-wifi6-aggregation-delay/
-├── wifi6-ampdu-latency.cc    # Wi-Fi 6 (802.11ax): wpływ A-MPDU (C++)
-├── wifi7-mlo-latency.cc      # Wi-Fi 7 (802.11be): wpływ MLO STR (C++)
-├── plot_cdf.py               # skrypt analizy i wykresów CDF (Python 3)
+├── wifi6-ampdu-latency.cc    # Wi-Fi 6 (802.11ax): sweep A-MPDU, N stacji tła (C++)
+├── wifi7-mlo-latency.cc      # Wi-Fi 7 (802.11be): MLO STR pod obciążeniem (C++)
+├── run_scenario1.sh          # kampania S1: sweep A-MPDU
+├── run_scenario2.sh          # kampania S2: skalowalność z liczbą stacji N
+├── run_scenario3.sh          # kampania S3: Wi-Fi 7 MLO on/off
+├── run_all.sh                # S1 + S3 + agregacja jednym ciągiem
+├── aggregate_scenario1.py    # pooled CDF + percentyle p50/p95/p99 (S1)
+├── aggregate_scenario2.py    # p99 + jitter w funkcji N (S2)
+├── aggregate_scenario3.py    # pooled CDF MLO on/off (S3)
+├── plot_cdf.py               # ad-hoc CDF z 1–2 plików XML
 ├── CMakeLists.txt            # definicje targetów build_exec dla scratch
-├── report_sections.tex       # draft raportu (LaTeX)
 └── results/
-    ├── flowmon-results-ampdu-on.xml       # Wi-Fi 6 z agregacją
-    ├── flowmon-results-ampdu-off.xml      # Wi-Fi 6 bez agregacji
-    ├── flowmon-results-wifi7-mlo-on.xml   # Wi-Fi 7 z MLO (2 linki)
-    ├── flowmon-results-wifi7-mlo-off.xml  # Wi-Fi 7 bez MLO (1 link)
-    └── cdf_delay_voip.pdf                 # wykres CDF opóźnień VoIP
+    ├── scenario1/   # flowmon-ampdu<A>-run<R>.xml + cdf_scenario1_ampdu_sweep.pdf
+    ├── scenario2/   # flowmon-ampdu{on,off}-N<N>-run<R>.xml + wykresy p99/jitter
+    └── scenario3/   # flowmon-wifi7-mlo{on,off}-...-run<R>.xml + cdf_scenario3_mlo.pdf
 ```
 
 ---
@@ -40,23 +44,19 @@ pip install matplotlib numpy
 
 ## Uruchomienie symulacji
 
-Komendy wykonywane z katalogu głównego ns-3 (`ns-3.47/`):
+Główny sposób to **pełne kampanie pomiarowe** (Scenariusze 1–3 poniżej).
+Pojedynczy bieg przydaje się tylko do szybkiego sprawdzenia/debugowania — komendy
+wykonujemy z katalogu głównego ns-3 (`ns-3.47/`):
 
 ```bash
-# Agregacja WŁĄCZONA (domyślnie)
-./ns3 run "ns3-wifi6-aggregation-delay/wifi6-ampdu-latency --ampdu=true --simTime=15"
+# pojedynczy bieg Wi-Fi 6 (debug): pełna agregacja, 5 stacji tła, 30 s
+./ns3 run "ns3-wifi6-aggregation-delay/wifi6-ampdu-latency --maxAmpdu=6500631 --nBackground=5 --run=1 --simTime=30"
 
-# Agregacja WYŁĄCZONA
-./ns3 run "ns3-wifi6-aggregation-delay/wifi6-ampdu-latency --ampdu=false --simTime=15"
-
-# Wi-Fi 7 (802.11be) — MLO STR włączone (5 GHz + 6 GHz)
-./ns3 run "ns3-wifi6-aggregation-delay/wifi7-mlo-latency --mlo=true  --simTime=15"
-
-# Wi-Fi 7 — MLO wyłączone (pojedynczy link)
-./ns3 run "ns3-wifi6-aggregation-delay/wifi7-mlo-latency --mlo=false --simTime=15"
+# pojedynczy bieg Wi-Fi 7 (debug): MLO włączone
+./ns3 run "ns3-wifi6-aggregation-delay/wifi7-mlo-latency --mlo=true --nBackground=5 --run=1 --simTime=30"
 ```
 
-Wyniki XML zapisywane do `results/`.
+Bez `--outFile` nazwa pliku XML jest generowana automatycznie do `results/`.
 
 ### Parametry CLI
 
@@ -114,30 +114,37 @@ Wynik: `results/scenario3/cdf_scenario3_mlo.pdf`.
 
 ---
 
-## Generowanie wykresów CDF
+## Wykresy ad-hoc (plot_cdf.py)
+
+Do szybkiego porównania CDF z dowolnych 1–2 plików XML (poza agregatorami kampanii):
 
 ```bash
 cd scratch/ns3-wifi6-aggregation-delay
 
-# Jedno porównanie — dwie krzywe na jednym wykresie
-python3 plot_cdf.py results/flowmon-results-ampdu-on.xml results/flowmon-results-ampdu-off.xml
+# --port=5002 = VoIP (domyślnie), --port=5001 = bulk
+python3 plot_cdf.py --port=5002 \
+    results/scenario1/flowmon-ampdu6500631-run1.xml \
+    results/scenario1/flowmon-ampdu0-run1.xml
 ```
 
-Wynik: `cdf_delay_voip.pdf` w bieżącym katalogu.
+Wynik: `cdf_delay_VoIP.pdf` (nazwa zależna od portu) w bieżącym katalogu.
 
 ---
 
 ## Topologia symulacyjna
 
 ```
-STA1 (bulk UDP, 150 Mbps) ──[5m]── AP ──[5m]── STA2 (VoIP UDP, 60 kbps)
-                                  │
-                            802.11ax / 5 GHz / 80 MHz
+        bulk × N (OnOff, 150 Mbps)        VoIP (UdpClient, ~60 kbps)
+   STA_bg … STA_bg ─────[5 m]────► AP ◄────[5 m]───── STA_VoIP
+                                   │
+              Wi-Fi 6: 802.11ax / 5 GHz / 80 MHz
+              Wi-Fi 7: 802.11be / 5 GHz (+ 6 GHz przy MLO)
 ```
 
-- **STA1**: `OnOffApplication`, 1400 B/pakiet, nasycenie kanału (background traffic)
-- **STA2**: `UdpClientHelper`, 150 B/pakiet co 20 ms (profil G.729)
+- **Stacje tła (N)**: `OnOffApplication`, 1400 B/pakiet — łącznie nasycają kanał i wywołują blokowanie HOL
+- **VoIP**: `UdpClientHelper`, 150 B/pakiet co 20 ms (profil G.729), **AC_BE** (bez priorytetu — celowo, by rywalizował z ruchem bulk)
 - **AP**: `PacketSink` na portach 5001 (bulk) i 5002 (VoIP)
+- Wszystkie STA rozmieszczone na okręgu o promieniu 5 m wokół AP
 
 ---
 
