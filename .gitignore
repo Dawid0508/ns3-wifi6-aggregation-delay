@@ -1,0 +1,8 @@
+# Surowe wyniki FlowMonitor z kampanii scenariuszowych
+results/scenario1/*.xml
+results/scenario2/*.xml
+results/scenario3/*.xml
+
+# Python
+__pycache__/
+*.pyc
