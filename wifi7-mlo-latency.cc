@@ -3,10 +3,10 @@
  * Scenariusz 3: Wi-Fi 7 (802.11be) — wpływ MLO (STR) na opóźnienia VoIP
  *
  * Uruchomienie z ~/ns-allinone-3.47/ns-3.47/:
- *   ./ns3 run "wifi7-mlo/wifi7-mlo-latency --mlo=true  --simTime=15"
- *   ./ns3 run "wifi7-mlo/wifi7-mlo-latency --mlo=false --simTime=15"
+ *   ./ns3 run "ns3-wifi6-aggregation-delay/wifi7-mlo-latency --mlo=true  --simTime=15"
+ *   ./ns3 run "ns3-wifi6-aggregation-delay/wifi7-mlo-latency --mlo=false --simTime=15"
  *
- * Wyniki: scratch/wifi7-mlo/results/flowmon-results-wifi7-mlo-{on|off}.xml
+ * Wyniki: scratch/ns3-wifi6-aggregation-delay/results/flowmon-results-wifi7-mlo-{on|off}.xml
  */
 
 #include "ns3/applications-module.h"
@@ -37,6 +37,15 @@ main(int argc, char* argv[])
     cmd.AddValue("mlo",     "Włącz MLO STR (dwa linki: 5 GHz + 6 GHz)", mloEnabled);
     cmd.AddValue("simTime", "Czas symulacji [s]",                         simTime);
     cmd.Parse(argc, argv);
+
+    // Aplikacje startują w t=1 s (czas na skojarzenie STA z AP), więc symulacja
+    // krótsza niż to nie wygeneruje ruchu i zaburzy obliczenia przepustowości.
+    const double APP_START = 1.0;
+    if (simTime <= APP_START)
+    {
+        NS_FATAL_ERROR("simTime (" << simTime << " s) musi być > " << APP_START
+                       << " s, inaczej aplikacje nie zdążą wystartować.");
+    }
 
     // ── Liczba linków ─────────────────────────────────────────────────────────
     uint8_t nLinks = mloEnabled ? 2 : 1;
@@ -160,20 +169,28 @@ main(int argc, char* argv[])
     bulk.SetAttribute("OnTime",     StringValue("ns3::ConstantRandomVariable[Constant=1]"));
     bulk.SetAttribute("OffTime",    StringValue("ns3::ConstantRandomVariable[Constant=0]"));
     ApplicationContainer bulkApps = bulk.Install(sta1Node.Get(0));
-    bulkApps.Start(Seconds(1.0));
+    bulkApps.Start(Seconds(APP_START));
     bulkApps.Stop(Seconds(simTime));
 
     // STA2: VoIP G.729 — 150 B co 20 ms
+    // RQ3: VoIP pozostaje w AC_BE (bez DSCP), tak samo jak w scenariuszu Wi-Fi 6.
+    // Dzięki temu w wariancie bez MLO ruch VoIP cierpi przez blokowanie HOL na
+    // wspólnym łączu 5 GHz, a włączenie MLO (drugi link 6 GHz) pokazuje, w jakim
+    // stopniu wielołączowość niweluje ten problem.
     UdpClientHelper voip(apIface.GetAddress(0), VOIP_DST_PORT);
     voip.SetAttribute("MaxPackets", UintegerValue(0xFFFFFFFF));
     voip.SetAttribute("Interval",   TimeValue(MilliSeconds(20)));
     voip.SetAttribute("PacketSize", UintegerValue(150));
     ApplicationContainer voipApps = voip.Install(sta2Node.Get(0));
-    voipApps.Start(Seconds(1.0));
+    voipApps.Start(Seconds(APP_START));
     voipApps.Stop(Seconds(simTime));
 
     // ── FlowMonitor ───────────────────────────────────────────────────────────
     FlowMonitorHelper flowHelper;
+    // Drobniejszy histogram (10 µs zamiast domyślnego 1 ms) → gładki ECDF zamiast
+    // pionowej linii, gdy opóźnienia są rzędu mikrosekund.
+    flowHelper.SetMonitorAttribute("DelayBinWidth",  DoubleValue(1e-5));
+    flowHelper.SetMonitorAttribute("JitterBinWidth", DoubleValue(1e-5));
     Ptr<FlowMonitor> flowMon = flowHelper.InstallAll();
 
     // ── Symulacja ─────────────────────────────────────────────────────────────
@@ -182,8 +199,8 @@ main(int argc, char* argv[])
 
     // ── Zapis wyników ─────────────────────────────────────────────────────────
     std::string xmlFile = mloEnabled
-        ? "scratch/wifi7-mlo/results/flowmon-results-wifi7-mlo-on.xml"
-        : "scratch/wifi7-mlo/results/flowmon-results-wifi7-mlo-off.xml";
+        ? "scratch/ns3-wifi6-aggregation-delay/results/flowmon-results-wifi7-mlo-on.xml"
+        : "scratch/ns3-wifi6-aggregation-delay/results/flowmon-results-wifi7-mlo-off.xml";
 
     flowMon->SerializeToXmlFile(xmlFile, true, true);
     NS_LOG_UNCOND("Wyniki zapisane do: " << xmlFile);

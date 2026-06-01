@@ -11,13 +11,17 @@ Prowadzący: prof. dr hab. inż. Szymon Szott
 
 ```
 ns3-wifi6-aggregation-delay/
-├── wifi6-ampdu-latency.cc    # skrypt symulacyjny ns-3 (C++)
+├── wifi6-ampdu-latency.cc    # Wi-Fi 6 (802.11ax): wpływ A-MPDU (C++)
+├── wifi7-mlo-latency.cc      # Wi-Fi 7 (802.11be): wpływ MLO STR (C++)
 ├── plot_cdf.py               # skrypt analizy i wykresów CDF (Python 3)
+├── CMakeLists.txt            # definicje targetów build_exec dla scratch
 ├── report_sections.tex       # draft raportu (LaTeX)
 └── results/
-    ├── flowmon-results-ampdu-on.xml   # wyniki FlowMonitor z agregacją
-    ├── flowmon-results-ampdu-off.xml  # wyniki FlowMonitor bez agregacji
-    └── cdf_delay_voip.pdf             # wykres CDF opóźnień VoIP
+    ├── flowmon-results-ampdu-on.xml       # Wi-Fi 6 z agregacją
+    ├── flowmon-results-ampdu-off.xml      # Wi-Fi 6 bez agregacji
+    ├── flowmon-results-wifi7-mlo-on.xml   # Wi-Fi 7 z MLO (2 linki)
+    ├── flowmon-results-wifi7-mlo-off.xml  # Wi-Fi 7 bez MLO (1 link)
+    └── cdf_delay_voip.pdf                 # wykres CDF opóźnień VoIP
 ```
 
 ---
@@ -44,6 +48,12 @@ Komendy wykonywane z katalogu głównego ns-3 (`ns-3.47/`):
 
 # Agregacja WYŁĄCZONA
 ./ns3 run "ns3-wifi6-aggregation-delay/wifi6-ampdu-latency --ampdu=false --simTime=15"
+
+# Wi-Fi 7 (802.11be) — MLO STR włączone (5 GHz + 6 GHz)
+./ns3 run "ns3-wifi6-aggregation-delay/wifi7-mlo-latency --mlo=true  --simTime=15"
+
+# Wi-Fi 7 — MLO wyłączone (pojedynczy link)
+./ns3 run "ns3-wifi6-aggregation-delay/wifi7-mlo-latency --mlo=false --simTime=15"
 ```
 
 Wyniki XML zapisywane do `results/`.
@@ -52,8 +62,9 @@ Wyniki XML zapisywane do `results/`.
 
 | Parametr | Domyślnie | Opis |
 |---|---|---|
-| `--ampdu` | `true` | Włącz/wyłącz agregację A-MPDU |
-| `--simTime` | `15` | Czas symulacji w sekundach |
+| `--ampdu` | `true` | (Wi-Fi 6) Włącz/wyłącz agregację A-MPDU |
+| `--mlo` | `true` | (Wi-Fi 7) Włącz/wyłącz MLO STR (2 linki) |
+| `--simTime` | `15` | Czas symulacji w sekundach (musi być > 1) |
 
 ---
 

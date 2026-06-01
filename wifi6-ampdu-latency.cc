@@ -43,6 +43,15 @@ main(int argc, char* argv[])
     cmd.AddValue("simTime", "Czas trwania symulacji w sekundach",             simTime);
     cmd.Parse(argc, argv);
 
+    // Aplikacje startują w t=APP_START (1 s) – czas na skojarzenie STA z AP.
+    // Dla simTime <= APP_START obliczenie przepustowości dzieliłoby przez
+    // zero lub liczbę ujemną, a aplikacje nie zdążyłyby nadać ruchu.
+    if (simTime <= 1.0)
+    {
+        NS_FATAL_ERROR("simTime (" << simTime << " s) musi być > 1.0 s "
+                       "(aplikacje startują dopiero w t=1 s).");
+    }
+
     std::cout << "\n=== Wi-Fi 6 A-MPDU Latency PoC ===\n"
               << "A-MPDU   : " << (enableAmpdu ? "ENABLED"  : "DISABLED") << "\n"
               << "SimTime  : " << simTime << " s\n\n";
@@ -168,9 +177,11 @@ main(int argc, char* argv[])
     // UdpClientHelper wysyła pakiety w stałych odstępach czasu:
     //   150 B co 20 ms = 60 kbps → profil zbliżony do G.729
     //
-    // Uwaga: bez oznaczenia DSCP pakiety trafiają do kolejki AC_BE.
-    // Aby użyć kolejki AC_VO, należy oznaczyć gniazdo socketem QoS
-    // (SetIpTos z wartością DSCP EF = 0xB8).
+    // RQ1: ruch VoIP CELOWO pozostaje w domyślnej kategorii AC_BE (brak DSCP),
+    // czyli rywalizuje o kanał w tej samej klasie co strumień bulk. Tylko wtedy
+    // można zaobserwować, jak rozmiar A-MPDU wpływa na opóźnienia małych,
+    // wrażliwych pakietów (efekt blokowania czoła kolejki / HOL). Oznaczenie
+    // gniazda jako AC_VO dałoby mu priorytet i ukryło badane zjawisko.
     // -------------------------------------------------------------------------
     UdpClientHelper voipClient(apAddr, VOIP_PORT);
     voipClient.SetAttribute("Interval",   TimeValue(MilliSeconds(20)));
@@ -199,6 +210,11 @@ main(int argc, char* argv[])
     // FlowMonitor – monitorowanie ruchu per przepływ IP
     // =========================================================================
     FlowMonitorHelper flowmonHelper;
+    // Domyślna szerokość słupka histogramu (1 ms) jest zbyt zgrubna dla opóźnień
+    // rzędu mikrosekund – wszystkie pakiety wpadają do 1–2 słupków i CDF wychodzi
+    // jako pionowa linia. 10 µs daje setki słupków → gładka krzywa ECDF.
+    flowmonHelper.SetMonitorAttribute("DelayBinWidth",  DoubleValue(1e-5));
+    flowmonHelper.SetMonitorAttribute("JitterBinWidth", DoubleValue(1e-5));
     Ptr<FlowMonitor>  monitor = flowmonHelper.InstallAll();
 
     // =========================================================================
