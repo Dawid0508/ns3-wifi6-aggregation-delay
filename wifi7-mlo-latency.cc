@@ -2,11 +2,16 @@
  *
  * Scenariusz 3: Wi-Fi 7 (802.11be) — wpływ MLO (STR) na opóźnienia VoIP
  *
- * Uruchomienie z ~/ns-allinone-3.47/ns-3.47/:
- *   ./ns3 run "ns3-wifi6-aggregation-delay/wifi7-mlo-latency --mlo=true  --simTime=15"
- *   ./ns3 run "ns3-wifi6-aggregation-delay/wifi7-mlo-latency --mlo=false --simTime=15"
+ * Ta sama metodologia co Scenariusz 1 (Wi-Fi 6): nBackground stacji nasyca
+ * wspólny kanał 5 GHz, a stacja VoIP (MLD) konkuruje o medium. Przy MLO=true
+ * VoIP korzysta dodatkowo z linku 6 GHz, co ma niwelować blokowanie HOL.
  *
- * Wyniki: scratch/ns3-wifi6-aggregation-delay/results/flowmon-results-wifi7-mlo-{on|off}.xml
+ * Uruchomienie z ~/ns-3.47/:
+ *   ./ns3 run "ns3-wifi6-aggregation-delay/wifi7-mlo-latency \
+ *              --mlo=true --nBackground=5 --run=1 --simTime=30"
+ *
+ * Pełną kampanię (MLO on/off × 10 powtórzeń) odpala run_scenario3.sh,
+ * a wyniki agreguje aggregate_scenario3.py.
  */
 
 #include "ns3/applications-module.h"
@@ -20,6 +25,11 @@
 #include "ns3/spectrum-wifi-helper.h"
 #include "ns3/wifi-module.h"
 
+#include <cmath>
+#include <cstdint>
+#include <sstream>
+#include <string>
+
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("Wifi7MloLatency");
@@ -30,12 +40,20 @@ static const uint16_t VOIP_DST_PORT = 5002;
 int
 main(int argc, char* argv[])
 {
-    bool mloEnabled = true;
-    double simTime  = 15.0;
+    bool        mloEnabled  = true;       // --mlo        : MLO STR (2 linki) on/off
+    uint32_t    nBackground = 5;          // --nBackground: liczba stacji ruchu masowego (bulk)
+    std::string bulkRate    = "150Mbps";  // --bulkRate   : szybkość OnOff jednej stacji tła
+    uint32_t    rngRun      = 1;          // --run        : numer powtórzenia (ziarno RNG)
+    double      simTime     = 30.0;       // --simTime    : czas symulacji [s]
+    std::string outFile;                  // --outFile    : ścieżka XML (pusta => auto)
 
     CommandLine cmd(__FILE__);
-    cmd.AddValue("mlo",     "Włącz MLO STR (dwa linki: 5 GHz + 6 GHz)", mloEnabled);
-    cmd.AddValue("simTime", "Czas symulacji [s]",                         simTime);
+    cmd.AddValue("mlo",         "Włącz MLO STR (dwa linki: 5 GHz + 6 GHz)", mloEnabled);
+    cmd.AddValue("nBackground", "Liczba stacji generujących ruch masowy (bulk)", nBackground);
+    cmd.AddValue("bulkRate",    "Szybkość OnOff jednej stacji tła (np. 150Mbps)", bulkRate);
+    cmd.AddValue("run",         "Numer powtórzenia / ziarno RNG (RngSeedManager::SetRun)", rngRun);
+    cmd.AddValue("simTime",     "Czas symulacji [s]", simTime);
+    cmd.AddValue("outFile",     "Ścieżka wyjściowego pliku XML (pusta => nazwa automatyczna)", outFile);
     cmd.Parse(argc, argv);
 
     // Aplikacje startują w t=1 s (czas na skojarzenie STA z AP), więc symulacja
@@ -46,26 +64,45 @@ main(int argc, char* argv[])
         NS_FATAL_ERROR("simTime (" << simTime << " s) musi być > " << APP_START
                        << " s, inaczej aplikacje nie zdążą wystartować.");
     }
+    if (nBackground == 0)
+    {
+        NS_FATAL_ERROR("nBackground musi być >= 1.");
+    }
+
+    // Niezależne powtórzenia: stałe ziarno + zmienny numer biegu (RngRun).
+    RngSeedManager::SetSeed(1);
+    RngSeedManager::SetRun(rngRun);
+
+    std::cout << "\n=== Wi-Fi 7 MLO — Scenariusz 3 ===\n"
+              << "MLO         : " << (mloEnabled ? "ON (5+6 GHz)" : "OFF (1 link)") << "\n"
+              << "Stacje tła  : " << nBackground << " x " << bulkRate << "\n"
+              << "Powtórzenie : run=" << rngRun << "\n"
+              << "SimTime     : " << simTime << " s\n\n";
 
     // ── Liczba linków ─────────────────────────────────────────────────────────
     uint8_t nLinks = mloEnabled ? 2 : 1;
 
     // ── Węzły ────────────────────────────────────────────────────────────────
     NodeContainer apNode;   apNode.Create(1);
-    NodeContainer sta1Node; sta1Node.Create(1);  // bulk, zawsze single-link
-    NodeContainer sta2Node; sta2Node.Create(1);  // VoIP, MLD gdy mlo=true
+    NodeContainer bgNodes;  bgNodes.Create(nBackground);  // bulk, single-link 5 GHz
+    NodeContainer sta2Node; sta2Node.Create(1);           // VoIP, MLD gdy mlo=true
 
-    // ── Mobilność ─────────────────────────────────────────────────────────────
+    // ── Mobilność: AP w centrum, pozostałe STA na okręgu o promieniu 5 m ──────
     MobilityHelper mobility;
     mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
 
     Ptr<ListPositionAllocator> posAlloc = CreateObject<ListPositionAllocator>();
-    posAlloc->Add(Vector(0.0,  0.0, 0.0));  // AP
-    posAlloc->Add(Vector(-5.0, 0.0, 0.0));  // STA1
-    posAlloc->Add(Vector( 5.0, 0.0, 0.0));  // STA2
+    posAlloc->Add(Vector(0.0, 0.0, 0.0));  // AP
+    const double   R    = 5.0;
+    const uint32_t nSta = nBackground + 1; // stacje tła + VoIP
+    for (uint32_t i = 0; i < nSta; ++i)
+    {
+        double ang = 2.0 * M_PI * i / nSta;
+        posAlloc->Add(Vector(R * std::cos(ang), R * std::sin(ang), 0.0));
+    }
     mobility.SetPositionAllocator(posAlloc);
     mobility.Install(apNode);
-    mobility.Install(sta1Node);
+    mobility.Install(bgNodes);
     mobility.Install(sta2Node);
 
     // ── WifiHelper dla MLD (AP + STA2) ───────────────────────────────────────
@@ -83,12 +120,12 @@ main(int argc, char* argv[])
                                      "ControlMode", StringValue("EhtMcs0"));
     }
 
-    // ── WifiHelper dla STA1 (single-link, osobny helper) ─────────────────────
-    WifiHelper wifiSta1;
-    wifiSta1.SetStandard(WIFI_STANDARD_80211be);
-    wifiSta1.SetRemoteStationManager("ns3::ConstantRateWifiManager",
-                                     "DataMode",    StringValue("EhtMcs9"),
-                                     "ControlMode", StringValue("OfdmRate54Mbps"));
+    // ── WifiHelper dla stacji tła (single-link, osobny helper) ───────────────
+    WifiHelper wifiBg;
+    wifiBg.SetStandard(WIFI_STANDARD_80211be);
+    wifiBg.SetRemoteStationManager("ns3::ConstantRateWifiManager",
+                                   "DataMode",    StringValue("EhtMcs9"),
+                                   "ControlMode", StringValue("OfdmRate54Mbps"));
 
     // ── Wspólny kanał 5 GHz — wszyscy go dzielą (STA1, AP, STA2) ────────────
     auto ch5 = CreateObject<MultiModelSpectrumChannel>();
@@ -110,20 +147,20 @@ main(int argc, char* argv[])
         phyMld.AddChannel(ch6, WIFI_SPECTRUM_6_GHZ);
     }
 
-    // ── PHY helper dla STA1 — ten sam ch5 co AP/STA2 (rywalizują o kanał) ───
-    SpectrumWifiPhyHelper phySta1(1);
-    phySta1.Set(0, "ChannelSettings", StringValue("{42, 80, BAND_5GHZ, 0}"));
-    phySta1.AddChannel(ch5, WIFI_SPECTRUM_5_GHZ);  // ten sam obiekt!
+    // ── PHY helper dla stacji tła — ten sam ch5 co AP/VoIP (rywalizują) ──────
+    SpectrumWifiPhyHelper phyBg(1);
+    phyBg.Set(0, "ChannelSettings", StringValue("{42, 80, BAND_5GHZ, 0}"));
+    phyBg.AddChannel(ch5, WIFI_SPECTRUM_5_GHZ);  // ten sam obiekt!
 
     // ── MAC helpers ───────────────────────────────────────────────────────────
     WifiMacHelper apMac;
     apMac.SetType("ns3::ApWifiMac",
                   "Ssid", SsidValue(Ssid("wifi7")));
 
-    WifiMacHelper sta1Mac;
-    sta1Mac.SetType("ns3::StaWifiMac",
-                    "Ssid",          SsidValue(Ssid("wifi7")),
-                    "ActiveProbing", BooleanValue(false));
+    WifiMacHelper bgMac;
+    bgMac.SetType("ns3::StaWifiMac",
+                  "Ssid",          SsidValue(Ssid("wifi7")),
+                  "ActiveProbing", BooleanValue(false));
 
     WifiMacHelper sta2Mac;
     sta2Mac.SetType("ns3::StaWifiMac",
@@ -131,20 +168,20 @@ main(int argc, char* argv[])
                     "ActiveProbing", BooleanValue(false));
 
     // ── Instalacja urządzeń ────────────────────────────────────────────────────
-    NetDeviceContainer apDevices   = wifi.Install(phyMld,  apMac,   apNode);
-    NetDeviceContainer sta1Devices = wifiSta1.Install(phySta1, sta1Mac, sta1Node);
-    NetDeviceContainer sta2Devices = wifi.Install(phyMld,  sta2Mac, sta2Node);
+    NetDeviceContainer apDevices  = wifi.Install(phyMld, apMac,   apNode);
+    NetDeviceContainer bgDevices  = wifiBg.Install(phyBg, bgMac,  bgNodes);  // wszystkie stacje tła
+    NetDeviceContainer sta2Devices = wifi.Install(phyMld, sta2Mac, sta2Node);
 
     // ── Stos IP ───────────────────────────────────────────────────────────────
     InternetStackHelper internet;
     internet.Install(apNode);
-    internet.Install(sta1Node);
+    internet.Install(bgNodes);
     internet.Install(sta2Node);
 
     Ipv4AddressHelper ipv4;
     ipv4.SetBase("10.1.1.0", "255.255.255.0");
     Ipv4InterfaceContainer apIface = ipv4.Assign(apDevices);
-    ipv4.Assign(sta1Devices);
+    ipv4.Assign(bgDevices);
     ipv4.Assign(sta2Devices);
 
     NeighborCacheHelper neighborCache;
@@ -161,14 +198,18 @@ main(int argc, char* argv[])
     sinks.Start(Seconds(0.0));
     sinks.Stop(Seconds(simTime));
 
-    // STA1: bulk ~150 Mbps
+    // Stacje tła: bulk nasycający wspólny kanał 5 GHz (każda po bulkRate)
     OnOffHelper bulk("ns3::UdpSocketFactory",
                       InetSocketAddress(apIface.GetAddress(0), BULK_DST_PORT));
-    bulk.SetAttribute("DataRate",   DataRateValue(DataRate("150Mbps")));
+    bulk.SetAttribute("DataRate",   DataRateValue(DataRate(bulkRate)));
     bulk.SetAttribute("PacketSize", UintegerValue(1400));
     bulk.SetAttribute("OnTime",     StringValue("ns3::ConstantRandomVariable[Constant=1]"));
     bulk.SetAttribute("OffTime",    StringValue("ns3::ConstantRandomVariable[Constant=0]"));
-    ApplicationContainer bulkApps = bulk.Install(sta1Node.Get(0));
+    ApplicationContainer bulkApps;
+    for (uint32_t i = 0; i < nBackground; ++i)
+    {
+        bulkApps.Add(bulk.Install(bgNodes.Get(i)));
+    }
     bulkApps.Start(Seconds(APP_START));
     bulkApps.Stop(Seconds(simTime));
 
@@ -198,9 +239,16 @@ main(int argc, char* argv[])
     Simulator::Run();
 
     // ── Zapis wyników ─────────────────────────────────────────────────────────
-    std::string xmlFile = mloEnabled
-        ? "scratch/ns3-wifi6-aggregation-delay/results/flowmon-results-wifi7-mlo-on.xml"
-        : "scratch/ns3-wifi6-aggregation-delay/results/flowmon-results-wifi7-mlo-off.xml";
+    // Jawny --outFile ma priorytet; w przeciwnym razie nazwa zależy od konfiguracji.
+    std::string xmlFile = outFile;
+    if (xmlFile.empty())
+    {
+        std::ostringstream name;
+        name << "scratch/ns3-wifi6-aggregation-delay/results/flowmon-wifi7-mlo"
+             << (mloEnabled ? "on" : "off") << "-bg" << nBackground
+             << "-run" << rngRun << ".xml";
+        xmlFile = name.str();
+    }
 
     flowMon->SerializeToXmlFile(xmlFile, true, true);
     NS_LOG_UNCOND("Wyniki zapisane do: " << xmlFile);

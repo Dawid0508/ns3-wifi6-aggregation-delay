@@ -7,11 +7,16 @@
  *
  *   STA1 (bulk UDP) ---[5m]--- AP ---[5m]--- STA2 (VoIP UDP)
  *
- * Scenariusze:
- *   ./ns3 run "wifi6-ampdu-latency --ampdu=true"   → agregacja włączona (domyślnie)
- *   ./ns3 run "wifi6-ampdu-latency --ampdu=false"  → agregacja wyłączona
+ * Scenariusz 1 (4.1) — sweep limitu A-MPDU przy rywalizacji z ruchem masowym:
+ *   ./ns3 run "ns3-wifi6-aggregation-delay/wifi6-ampdu-latency \
+ *              --maxAmpdu=6500631 --nBackground=5 --run=1 --simTime=30"
  *
- * Wyniki: flowmon-results-ampdu-{on|off}.xml + tabela w konsoli
+ * Szybki tryb on/off (zgodny ze starszymi komendami):
+ *   ./ns3 run "ns3-wifi6-aggregation-delay/wifi6-ampdu-latency --ampdu=true"
+ *   ./ns3 run "ns3-wifi6-aggregation-delay/wifi6-ampdu-latency --ampdu=false"
+ *
+ * Pełną kampanię (5 wartości A-MPDU × 10 powtórzeń) odpala run_scenario1.sh,
+ * a wyniki agreguje aggregate_scenario1.py.
  */
 
 #include "ns3/applications-module.h"
@@ -22,6 +27,8 @@
 #include "ns3/network-module.h"
 #include "ns3/wifi-module.h"
 
+#include <cmath>
+#include <cstdint>
 #include <iomanip>
 #include <sstream>
 
@@ -35,12 +42,22 @@ main(int argc, char* argv[])
     // =========================================================================
     // Parametry symulacji (dostępne przez wiersz poleceń)
     // =========================================================================
-    bool   enableAmpdu = true;  // --ampdu   : włącz/wyłącz agregację A-MPDU
-    double simTime     = 15.0;  // --simTime : czas symulacji [s]
+    bool        enableAmpdu = true;       // --ampdu      : szybki on/off (gdy --maxAmpdu < 0)
+    int64_t     maxAmpduArg = -1;         // --maxAmpdu   : BE_MaxAmpduSize [B]; <0 => użyj --ampdu
+    uint32_t    nBackground = 5;          // --nBackground: liczba stacji ruchu masowego (bulk)
+    std::string bulkRate    = "150Mbps";  // --bulkRate   : szybkość OnOff jednej stacji tła
+    uint32_t    rngRun      = 1;          // --run        : numer powtórzenia (ziarno RNG)
+    double      simTime     = 30.0;       // --simTime    : czas symulacji [s]
+    std::string outFile;                  // --outFile    : ścieżka XML (pusta => auto)
 
     CommandLine cmd(__FILE__);
-    cmd.AddValue("ampdu",   "Włącz maksymalną agregację A-MPDU (true/false)", enableAmpdu);
-    cmd.AddValue("simTime", "Czas trwania symulacji w sekundach",             simTime);
+    cmd.AddValue("ampdu",       "Szybki przełącznik agregacji on/off (gdy --maxAmpdu < 0)", enableAmpdu);
+    cmd.AddValue("maxAmpdu",    "Limit BE_MaxAmpduSize w bajtach (0..6500631); < 0 => użyj --ampdu", maxAmpduArg);
+    cmd.AddValue("nBackground", "Liczba stacji generujących ruch masowy (bulk)", nBackground);
+    cmd.AddValue("bulkRate",    "Szybkość OnOff jednej stacji tła (np. 150Mbps)", bulkRate);
+    cmd.AddValue("run",         "Numer powtórzenia / ziarno RNG (RngSeedManager::SetRun)", rngRun);
+    cmd.AddValue("simTime",     "Czas trwania symulacji w sekundach", simTime);
+    cmd.AddValue("outFile",     "Ścieżka wyjściowego pliku XML (pusta => nazwa automatyczna)", outFile);
     cmd.Parse(argc, argv);
 
     // Aplikacje startują w t=APP_START (1 s) – czas na skojarzenie STA z AP.
@@ -51,10 +68,24 @@ main(int argc, char* argv[])
         NS_FATAL_ERROR("simTime (" << simTime << " s) musi być > 1.0 s "
                        "(aplikacje startują dopiero w t=1 s).");
     }
+    if (nBackground == 0)
+    {
+        NS_FATAL_ERROR("nBackground musi być >= 1.");
+    }
 
-    std::cout << "\n=== Wi-Fi 6 A-MPDU Latency PoC ===\n"
-              << "A-MPDU   : " << (enableAmpdu ? "ENABLED"  : "DISABLED") << "\n"
-              << "SimTime  : " << simTime << " s\n\n";
+    // Niezależne powtórzenia: stałe ziarno + zmienny numer biegu (RngRun).
+    RngSeedManager::SetSeed(1);
+    RngSeedManager::SetRun(rngRun);
+
+    // Efektywny limit A-MPDU dla klasy BE (sweep RQ1) lub z przełącznika on/off.
+    uint32_t maxBe = (maxAmpduArg >= 0) ? static_cast<uint32_t>(maxAmpduArg)
+                                        : (enableAmpdu ? 6500631u : 0u);
+
+    std::cout << "\n=== Wi-Fi 6 A-MPDU — Scenariusz 1 ===\n"
+              << "BE_MaxAmpduSize : " << maxBe << " B\n"
+              << "Stacje tła      : " << nBackground << " x " << bulkRate << "\n"
+              << "Powtórzenie     : run=" << rngRun << "\n"
+              << "SimTime         : " << simTime << " s\n\n";
 
     // =========================================================================
     // Węzły sieci
@@ -62,10 +93,11 @@ main(int argc, char* argv[])
     NodeContainer apNode;
     apNode.Create(1);
 
-    // staNodes.Get(0) = STA1 — ciężki ruch UDP (bulk)
-    // staNodes.Get(1) = STA2 — ruch VoIP (150 B co 20 ms)
+    // Indeksy stacji: [0 .. nBackground-1] = ruch masowy (bulk),
+    //                 [nBackground]        = ruch VoIP (150 B co 20 ms).
     NodeContainer staNodes;
-    staNodes.Create(2);
+    staNodes.Create(nBackground + 1);
+    const uint32_t VOIP_IDX = nBackground;
 
     // =========================================================================
     // Warstwa fizyczna (PHY) – 802.11ax, 5 GHz, 80 MHz
@@ -97,8 +129,8 @@ main(int argc, char* argv[])
     // BE (Best Effort) – używane przez STA1 (bulk) i STA2 (VoIP domyślnie)
     // VO (Voice)       – używane przez STA2 jeśli gniazdo zostanie oznaczone QoS
     // -------------------------------------------------------------------------
-    uint32_t maxBe = enableAmpdu ? 6500631u : 0u;
-    uint32_t maxVo = enableAmpdu ? 65535u   : 0u; // mniejszy limit dla klasy Voice
+    // VoIP jest w AC_BE, więc limit kolejki VO nie wpływa na wyniki; ustawiamy = BE.
+    uint32_t maxVo = maxBe;
 
     WifiMacHelper mac;
     Ssid ssid("wifi6-lab");
@@ -124,9 +156,15 @@ main(int argc, char* argv[])
     mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
 
     Ptr<ListPositionAllocator> posAlloc = CreateObject<ListPositionAllocator>();
-    posAlloc->Add(Vector( 0.0, 0.0, 0.0)); // AP   – centrum
-    posAlloc->Add(Vector( 5.0, 0.0, 0.0)); // STA1 – 5 m od AP
-    posAlloc->Add(Vector(-5.0, 0.0, 0.0)); // STA2 – 5 m od AP
+    posAlloc->Add(Vector(0.0, 0.0, 0.0)); // AP – centrum
+    // Wszystkie STA na okręgu o promieniu 5 m wokół AP (równomiernie po kącie).
+    const double   R    = 5.0;
+    const uint32_t nSta = nBackground + 1;
+    for (uint32_t i = 0; i < nSta; ++i)
+    {
+        double ang = 2.0 * M_PI * i / nSta;
+        posAlloc->Add(Vector(R * std::cos(ang), R * std::sin(ang), 0.0));
+    }
 
     mobility.SetPositionAllocator(posAlloc);
     mobility.Install(apNode);
@@ -154,22 +192,27 @@ main(int argc, char* argv[])
     const double   APP_START = 1.0; // [s] – czas na skojarzenie STA z AP
 
     // -------------------------------------------------------------------------
-    // STA1 → AP : ciężki ruch UDP (nasycenie kanału)
+    // Stacje tła → AP : ciężki ruch UDP (nasycenie współdzielonego kanału)
     //
-    // OnOffApplication w trybie „always on" z dużymi pakietami UDP.
-    // Symuluje np. transfer pliku lub strumień wideo HD w tle.
+    // Każda z nBackground stacji uruchamia OnOffApplication w trybie „always on"
+    // z dużymi pakietami UDP. Razem nasycają kanał i zmuszają MAC do budowania
+    // maksymalnych ramek A-MPDU, co wywołuje badany efekt HOL na ruchu VoIP.
     // -------------------------------------------------------------------------
     OnOffHelper bulkClient("ns3::UdpSocketFactory",
                            InetSocketAddress(apAddr, BULK_PORT));
-    bulkClient.SetAttribute("DataRate",   DataRateValue(DataRate("150Mbps")));
+    bulkClient.SetAttribute("DataRate",   DataRateValue(DataRate(bulkRate)));
     bulkClient.SetAttribute("PacketSize", UintegerValue(1400));  // bliskie MTU Ethernet
     // OnTime = bardzo duży stały czas → aplikacja nigdy nie przechodzi w tryb Off
     bulkClient.SetAttribute("OnTime",  StringValue("ns3::ConstantRandomVariable[Constant=10000]"));
     bulkClient.SetAttribute("OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0]"));
 
-    ApplicationContainer sta1App = bulkClient.Install(staNodes.Get(0));
-    sta1App.Start(Seconds(APP_START));
-    sta1App.Stop(Seconds(simTime));
+    ApplicationContainer bulkApps;
+    for (uint32_t i = 0; i < nBackground; ++i)
+    {
+        bulkApps.Add(bulkClient.Install(staNodes.Get(i)));
+    }
+    bulkApps.Start(Seconds(APP_START));
+    bulkApps.Stop(Seconds(simTime));
 
     // -------------------------------------------------------------------------
     // STA2 → AP : ruch VoIP (imitacja kodeka G.711 / G.729)
@@ -188,7 +231,7 @@ main(int argc, char* argv[])
     voipClient.SetAttribute("PacketSize", UintegerValue(150));
     voipClient.SetAttribute("MaxPackets", UintegerValue(0xFFFFFFFF)); // bez limitu pakietów
 
-    ApplicationContainer sta2App = voipClient.Install(staNodes.Get(1));
+    ApplicationContainer sta2App = voipClient.Install(staNodes.Get(VOIP_IDX));
     sta2App.Start(Seconds(APP_START));
     sta2App.Stop(Seconds(simTime));
 
@@ -228,9 +271,16 @@ main(int argc, char* argv[])
     // =========================================================================
     monitor->CheckForLostPackets();
 
-    // Ścieżka względna do katalogu projektu (ns3 run wykonuje z ns-3.47/)
-    std::string xmlFile = std::string("scratch/ns3-wifi6-aggregation-delay/results/flowmon-results-") +
-                          (enableAmpdu ? "ampdu-on" : "ampdu-off") + ".xml";
+    // Ścieżka względna do katalogu projektu (ns3 run wykonuje z ns-3.47/).
+    // Jawny --outFile ma priorytet; w przeciwnym razie nazwa zależy od konfiguracji.
+    std::string xmlFile = outFile;
+    if (xmlFile.empty())
+    {
+        std::ostringstream name;
+        name << "scratch/ns3-wifi6-aggregation-delay/results/flowmon-ampdu"
+             << maxBe << "-bg" << nBackground << "-run" << rngRun << ".xml";
+        xmlFile = name.str();
+    }
     // Argumenty: nazwa pliku, dołącz HistogramOfDelays, dołącz HistogramOfJitters
     monitor->SerializeToXmlFile(xmlFile, true, true);
     std::cout << ">>> Plik XML zapisany: " << xmlFile << "\n\n";

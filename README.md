@@ -62,9 +62,29 @@ Wyniki XML zapisywane do `results/`.
 
 | Parametr | Domyślnie | Opis |
 |---|---|---|
-| `--ampdu` | `true` | (Wi-Fi 6) Włącz/wyłącz agregację A-MPDU |
+| `--ampdu` | `true` | (Wi-Fi 6) Szybki on/off agregacji (gdy `--maxAmpdu < 0`) |
+| `--maxAmpdu` | `-1` | (Wi-Fi 6) `BE_MaxAmpduSize` w bajtach; `< 0` => użyj `--ampdu` |
+| `--nBackground` | `5` | (Wi-Fi 6) Liczba stacji generujących ruch masowy |
+| `--bulkRate` | `150Mbps` | (Wi-Fi 6) Szybkość OnOff jednej stacji tła |
+| `--run` | `1` | (Wi-Fi 6) Numer powtórzenia / ziarno RNG |
 | `--mlo` | `true` | (Wi-Fi 7) Włącz/wyłącz MLO STR (2 linki) |
-| `--simTime` | `15` | Czas symulacji w sekundach (musi być > 1) |
+| `--simTime` | `30` (Wi-Fi 6) / `15` (Wi-Fi 7) | Czas symulacji w sekundach (musi być > 1) |
+| `--outFile` | auto | (Wi-Fi 6) Ścieżka pliku XML; pusta => nazwa automatyczna |
+
+### Scenariusz 1 (sekcja 4.1) — pełna kampania
+
+Sweep `BE_MaxAmpduSize ∈ {0, 8000, 65535, 524287, 6500631}` B, 5 stacji w tle,
+10 powtórzeń z różnymi ziarnami RNG, 30 s symulacji:
+
+```bash
+# 50 biegów -> results/scenario1/flowmon-ampdu<A>-run<R>.xml
+./scratch/ns3-wifi6-aggregation-delay/run_scenario1.sh
+
+# Agregacja: pooled CDF (5 krzywych) + percentyle p50/p95/p99 ze średnią i 95% CI
+python3 scratch/ns3-wifi6-aggregation-delay/aggregate_scenario1.py
+```
+
+Wynik: `results/scenario1/cdf_scenario1_ampdu_sweep.pdf` + tabela w konsoli.
 
 ---
 
