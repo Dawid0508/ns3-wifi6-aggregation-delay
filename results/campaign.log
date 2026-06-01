@@ -1,0 +1,172 @@
+############ START: Mon Jun  1 11:31:38 CEST 2026 ############
+===== Scenariusz 1 (Wi-Fi 6) =====
+=== Scenariusz 1: 5 wartości A-MPDU × 10 powtórzeń = 50 biegów ===
+[ 1/50] A-MPDU=0        B  run=1  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run1.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run1.xml
+[ 2/50] A-MPDU=0        B  run=2  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run2.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run2.xml
+[ 3/50] A-MPDU=0        B  run=3  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run3.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run3.xml
+[ 4/50] A-MPDU=0        B  run=4  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run4.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run4.xml
+[ 5/50] A-MPDU=0        B  run=5  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run5.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run5.xml
+[ 6/50] A-MPDU=0        B  run=6  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run6.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run6.xml
+[ 7/50] A-MPDU=0        B  run=7  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run7.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run7.xml
+[ 8/50] A-MPDU=0        B  run=8  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run8.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run8.xml
+[ 9/50] A-MPDU=0        B  run=9  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run9.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run9.xml
+[10/50] A-MPDU=0        B  run=10 -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run10.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu0-run10.xml
+[11/50] A-MPDU=8000     B  run=1  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run1.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run1.xml
+[12/50] A-MPDU=8000     B  run=2  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run2.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run2.xml
+[13/50] A-MPDU=8000     B  run=3  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run3.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run3.xml
+[14/50] A-MPDU=8000     B  run=4  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run4.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run4.xml
+[15/50] A-MPDU=8000     B  run=5  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run5.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run5.xml
+[16/50] A-MPDU=8000     B  run=6  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run6.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run6.xml
+[17/50] A-MPDU=8000     B  run=7  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run7.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run7.xml
+[18/50] A-MPDU=8000     B  run=8  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run8.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run8.xml
+[19/50] A-MPDU=8000     B  run=9  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run9.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run9.xml
+[20/50] A-MPDU=8000     B  run=10 -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run10.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu8000-run10.xml
+[21/50] A-MPDU=65535    B  run=1  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run1.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run1.xml
+[22/50] A-MPDU=65535    B  run=2  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run2.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run2.xml
+[23/50] A-MPDU=65535    B  run=3  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run3.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run3.xml
+[24/50] A-MPDU=65535    B  run=4  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run4.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run4.xml
+[25/50] A-MPDU=65535    B  run=5  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run5.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run5.xml
+[26/50] A-MPDU=65535    B  run=6  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run6.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run6.xml
+[27/50] A-MPDU=65535    B  run=7  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run7.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run7.xml
+[28/50] A-MPDU=65535    B  run=8  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run8.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run8.xml
+[29/50] A-MPDU=65535    B  run=9  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run9.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run9.xml
+[30/50] A-MPDU=65535    B  run=10 -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run10.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu65535-run10.xml
+[31/50] A-MPDU=524287   B  run=1  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run1.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run1.xml
+[32/50] A-MPDU=524287   B  run=2  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run2.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run2.xml
+[33/50] A-MPDU=524287   B  run=3  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run3.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run3.xml
+[34/50] A-MPDU=524287   B  run=4  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run4.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run4.xml
+[35/50] A-MPDU=524287   B  run=5  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run5.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run5.xml
+[36/50] A-MPDU=524287   B  run=6  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run6.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run6.xml
+[37/50] A-MPDU=524287   B  run=7  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run7.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run7.xml
+[38/50] A-MPDU=524287   B  run=8  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run8.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run8.xml
+[39/50] A-MPDU=524287   B  run=9  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run9.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run9.xml
+[40/50] A-MPDU=524287   B  run=10 -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run10.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu524287-run10.xml
+[41/50] A-MPDU=6500631  B  run=1  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run1.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run1.xml
+[42/50] A-MPDU=6500631  B  run=2  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run2.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run2.xml
+[43/50] A-MPDU=6500631  B  run=3  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run3.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run3.xml
+[44/50] A-MPDU=6500631  B  run=4  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run4.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run4.xml
+[45/50] A-MPDU=6500631  B  run=5  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run5.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run5.xml
+[46/50] A-MPDU=6500631  B  run=6  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run6.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run6.xml
+[47/50] A-MPDU=6500631  B  run=7  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run7.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run7.xml
+[48/50] A-MPDU=6500631  B  run=8  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run8.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run8.xml
+[49/50] A-MPDU=6500631  B  run=9  -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run9.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run9.xml
+[50/50] A-MPDU=6500631  B  run=10 -> scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run10.xml
+>>> Plik XML zapisany: scratch/ns3-wifi6-aggregation-delay/results/scenario1/flowmon-ampdu6500631-run10.xml
+=== Kampania zakończona. Pliki w scratch/ns3-wifi6-aggregation-delay/results/scenario1/ ===
+Agregacja:  python3 scratch/ns3-wifi6-aggregation-delay/aggregate_scenario1.py
+===== Scenariusz 3 (Wi-Fi 7 / MLO) =====
+=== Scenariusz 3: MLO {ON,OFF} × 10 powtórzeń = 20 biegów ===
+[ 1/20] MLO=true  run=1  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run1.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run1.xml
+[ 2/20] MLO=true  run=2  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run2.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run2.xml
+[ 3/20] MLO=true  run=3  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run3.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run3.xml
+[ 4/20] MLO=true  run=4  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run4.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run4.xml
+[ 5/20] MLO=true  run=5  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run5.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run5.xml
+[ 6/20] MLO=true  run=6  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run6.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run6.xml
+[ 7/20] MLO=true  run=7  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run7.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run7.xml
+[ 8/20] MLO=true  run=8  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run8.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run8.xml
+[ 9/20] MLO=true  run=9  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run9.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run9.xml
+[10/20] MLO=true  run=10 -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run10.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mloon-bg5-run10.xml
+[11/20] MLO=false run=1  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run1.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run1.xml
+[12/20] MLO=false run=2  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run2.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run2.xml
+[13/20] MLO=false run=3  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run3.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run3.xml
+[14/20] MLO=false run=4  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run4.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run4.xml
+[15/20] MLO=false run=5  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run5.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run5.xml
+[16/20] MLO=false run=6  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run6.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run6.xml
+[17/20] MLO=false run=7  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run7.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run7.xml
+[18/20] MLO=false run=8  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run8.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run8.xml
+[19/20] MLO=false run=9  -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run9.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run9.xml
+[20/20] MLO=false run=10 -> scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run10.xml
+Wyniki zapisane do: scratch/ns3-wifi6-aggregation-delay/results/scenario3/flowmon-wifi7-mlooff-bg5-run10.xml
+=== Kampania zakończona. Pliki w scratch/ns3-wifi6-aggregation-delay/results/scenario3/ ===
+Agregacja:  python3 scratch/ns3-wifi6-aggregation-delay/aggregate_scenario3.py
+===== Agregacja =====
+
+Agregacja z katalogu: /home/dawid/ns-3.47/scratch/ns3-wifi6-aggregation-delay/results/scenario1
+    A-MPDU [B] |  n |         p50 [ms] |           p95 [ms] |           p99 [ms]
+------------------------------------------------------------------------------
+       0 (OFF) | 10 |    0.52 ±  0.01 |     4.11 ±   0.29 |    14.23 ±   3.58
+         8 000 | 10 |    0.84 ±  0.02 |     5.96 ±   0.50 |    22.03 ±   5.60
+        65 535 | 10 |    3.86 ±  0.12 |    41.89 ±  10.22 |   156.78 ±  36.23
+       524 287 | 10 |   21.42 ±  1.20 |   238.67 ±  28.14 |   397.58 ±  35.25
+     6 500 631 | 10 |   21.42 ±  1.20 |   238.67 ±  28.14 |   397.58 ±  35.25
+------------------------------------------------------------------------------
+Wykres zapisany: /home/dawid/ns-3.47/scratch/ns3-wifi6-aggregation-delay/results/scenario1/cdf_scenario1_ampdu_sweep.pdf
+
+
+Agregacja z katalogu: /home/dawid/ns-3.47/scratch/ns3-wifi6-aggregation-delay/results/scenario3
+           Wariant |  n |         p50 [ms] |           p95 [ms] |           p99 [ms]
+----------------------------------------------------------------------------------
+  MLO OFF (1 link) | 10 |    6.47 ±  0.39 |   215.12 ±  28.10 |   377.26 ±  29.14
+  MLO ON (5+6 GHz) | 10 |    0.06 ±  0.00 |     0.07 ±   0.00 |     0.11 ±   0.07
+----------------------------------------------------------------------------------
+Wykres zapisany: /home/dawid/ns-3.47/scratch/ns3-wifi6-aggregation-delay/results/scenario3/cdf_scenario3_mlo.pdf
+
+############ ALL_DONE: Mon Jun  1 19:52:49 CEST 2026 ############
